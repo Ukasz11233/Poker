@@ -58,22 +58,26 @@ public class Server {
     }
 
     private void gameplay(int currClient) {
+        boolean moveIsCorrect = false;
         try {
-            if (sockets.get(currClient).isConnected()) {
+            do {
+
                 broadcastMessage("AKTUALNY STAN ROZGRYWKI: " + table);
                 broadcastInfo();
                 debug("Gameplay " + currClient);
+                sendToClient(table.tellWhatMoves(currClient), currClient);
                 sendToClient("your turn", currClient);
 
-
                 String msgFromClient = bufferedReaders.get(currClient).readLine();
+                moveIsCorrect = table.readPlayerMove(msgFromClient, currClient);
+
                 if (msgFromClient.equals(null)) {
                     clientDisconnected(currClient);
                 }
                 System.out.println("Client" + currClient + " :" + msgFromClient);
-
                 numberOfMesseges++;
-            }
+
+            }while(!moveIsCorrect);
         } catch (Exception e) {
             debug("Wyjatek w gameplay");
             debug("Klient " + currClient + " rozlaczyl sie");
@@ -140,6 +144,11 @@ public class Server {
         broadcastMessage("POLACZONYCH GRACZY: " + conenctedUsers);
         //broadcastMessage("Dołączył gracz " + new_username);
         table.addPlayer(new Player(new_username));
+
+        // JESLI GRACZ DALACZYL JAKO PIERWSZY TO USTAWIAM GO JAKO TEGO NA KTORYM KONCZYMY RUNDE
+        if (conenctedUsers == 1) {
+            table.setPlayerToStop(0);
+        }
     }
 
     private void clientDisconnected(int idx)  {

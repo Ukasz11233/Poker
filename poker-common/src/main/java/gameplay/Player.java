@@ -10,10 +10,14 @@ public class Player {
 
     private boolean isPlaying;
 
+    // Zmienna do gameplay-u
+    public boolean hasFolded;
+
     public Player(String _username) {
         username = _username;
         coins = 400;
         cards = new ArrayList<>();
+        hasFolded = false;
     }
 
     public String toString() {
