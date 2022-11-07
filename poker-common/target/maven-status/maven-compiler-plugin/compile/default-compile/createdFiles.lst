@@ -1,0 +1,7 @@
+gameplay/Player.class
+gameplay/Table.class
+gameplay/CardRankComparator.class
+gameplay/Card$suit.class
+gameplay/Card$rank.class
+gameplay/Deck.class
+gameplay/Card.class
