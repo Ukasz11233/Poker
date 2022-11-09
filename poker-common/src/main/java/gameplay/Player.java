@@ -8,23 +8,25 @@ public class Player {
     private String username;
     private int coins;
 
+    // Zmienna do gameplay-u
     private boolean isPlaying;
 
-    // Zmienna do gameplay-u
-    public boolean hasFolded;
 
     public Player(String _username) {
         username = _username;
         coins = 400;
         cards = new ArrayList<>();
-        hasFolded = false;
+        isPlaying = false;
     }
 
     public String toString() {
         StringBuilder result = new StringBuilder();
         int idx = 1;
-        for (Card cartToStr : cards) {
-            result.append("\n").append(idx++).append(".").append(cartToStr);
+        if(cards != null)
+        {
+            for (Card cartToStr : cards) {
+                result.append("\n").append(idx++).append(".").append(cartToStr);
+            }
         }
         return result.toString();
     }

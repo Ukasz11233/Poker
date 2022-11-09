@@ -6,7 +6,7 @@ public class Card {
 
 
     public enum suit{ HEART, SPADE, CLUB, DIAMOND}
-    public enum rank{ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE}
+    public enum rank{TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE}
 
     public static int compare(Card cardA, Card cardB) {
         if (cardA._rank.ordinal() == cardB._rank.ordinal()) {
