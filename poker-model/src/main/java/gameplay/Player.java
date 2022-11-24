@@ -11,12 +11,18 @@ public class Player {
     // Zmienna do gameplay-u
     private boolean isPlaying;
 
+    private boolean hasChecked;
+
+    private int result;
+
 
     public Player(String _username) {
         username = _username;
         coins = 400;
         cards = new ArrayList<>();
         isPlaying = false;
+        hasChecked = false;
+        result = 0;
     }
 
     public String toString() {
@@ -35,7 +41,23 @@ public class Player {
         for (int i = 0; i < 5; i++) {
             cards.add(deck.getCardFromDeck());
         }
+        result = countResult();
     }
+
+    public void putAsideAllCards() {
+        cards = new ArrayList<>(5);
+        result = 0;
+    }
+
+    private int countResult() {
+        int result = 0;
+        for (Card card : cards) {
+            result += card.cardValue();
+        }
+        return result;
+    }
+
+
 
 
     public int getCoins() {
@@ -52,5 +74,17 @@ public class Player {
 
     public void setPlaying(boolean playing) {
         isPlaying = playing;
+    }
+
+    public boolean isHasChecked() {
+        return hasChecked;
+    }
+
+    public void setHasChecked(boolean hasChecked) {
+        this.hasChecked = hasChecked;
+    }
+
+    public int getResult() {
+        return result;
     }
 }

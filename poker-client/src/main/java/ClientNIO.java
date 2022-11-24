@@ -12,8 +12,8 @@ import java.util.Scanner;
 public class ClientNIO {
     private SocketChannel client;
     private Selector selector;
-    private ByteBuffer readBuffer = ByteBuffer.allocate(256);
-    private ByteBuffer writeBuffer = ByteBuffer.allocate(256);
+    private ByteBuffer readBuffer = ByteBuffer.allocate(bufferOperations.BUFFER_SIZE);
+    private ByteBuffer writeBuffer = ByteBuffer.allocate(bufferOperations.BUFFER_SIZE);
     private Scanner scanner;
     private String username;
     private String msgToSend = "";
@@ -55,7 +55,7 @@ public class ClientNIO {
             logs.debug("empty message");
         }
         msgReceived = new String(readBuffer.array()).trim();
-        if (msgReceived.equalsIgnoreCase("starting game")) {
+        if (msgReceived.contains("starting game")) {
             hasGameStarted = true;
         }
         System.out.println("response = " + msgReceived);
@@ -67,6 +67,10 @@ public class ClientNIO {
     private void sendMessage(SelectionKey key) throws IOException {
         writeBuffer.clear();
         msgToSend = scanner.nextLine();
+        if (msgToSend.isEmpty()) {
+            logs.debug("empty string");
+            msgToSend = "empty string";
+        }
         writeBuffer = ByteBuffer.wrap(msgToSend.getBytes());
         client.write(writeBuffer);
         key.interestOps(SelectionKey.OP_READ);

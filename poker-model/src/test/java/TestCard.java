@@ -46,6 +46,16 @@ public class TestCard {
         assertEquals(-1, Card.compare(cardSpadeThree, cardDiamonJack));
     }
 
+    @Test
+    public void TestCardValueHeartTwo() {
+        Card cardHeartTwo = new Card(Card.suit.HEART, Card.rank.TWO);
+        assertEquals(0*0, cardHeartTwo.cardValue());
+    }
+    @Test
+    public void TestCardValueClubKing() {
+        Card cardHeartTwo = new Card(Card.suit.CLUB, Card.rank.KING);
+        assertEquals(2*11, cardHeartTwo.cardValue());
+    }
 
 }
 

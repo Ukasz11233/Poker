@@ -23,6 +23,10 @@ public class Card {
         _rank = tempRank;
     }
 
+    public int cardValue() {
+        return _rank.ordinal() * _suit.ordinal();
+    }
+
     public Card() {}
     private suit _suit;
     private rank _rank;

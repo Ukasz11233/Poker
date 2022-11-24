@@ -21,6 +21,7 @@ public class Table {
     public Table(int _ante) {
         players = new ArrayList<>();
         deck = new Deck();
+        //deck.shuffleDeck(); //latwiej debugowac
         numOfPlayers = 0;
         potOnTable = 0;
         ante = _ante;
@@ -36,12 +37,7 @@ public class Table {
     public void startGame() {
         deck.shuffleDeck();
         for (Player player : players) {
-            player.setPlaying(player.getCoins() > ante);
-            if (player.isPlaying()) {
-                potOnTable += 10;
-                player.addCoins(-10);
-                player.getFiveCards(deck);
-            }
+            addPlayerToTable(player);
         }
 
     }
@@ -56,33 +52,111 @@ public class Table {
     }
 
     public boolean readPlayerMove(String playerMove, int playerNumber) {
-        boolean result = true;
         String [] playerMoveArray = playerMove.split("\\s", 2);
         if (playerMoveArray[0].equalsIgnoreCase("fold")) {
-
             players.get(playerNumber).setPlaying(false);
+            return true;
         }
-
         if (!wasRaised) {
-            if (playerMove.equalsIgnoreCase("Raise")) {
-                result = true;
+            if (playerMoveArray[0].equalsIgnoreCase("Raise")) {
+                wasRaised = true;
+                minimalPot = Integer.parseInt(playerMoveArray[1]);
+                potOnTable += Integer.parseInt(playerMoveArray[1]);
+                players.get(playerNumber).addCoins(-1 *Integer.parseInt(playerMoveArray[1]));
+                return true;
+            } else if (playerMoveArray[0].equalsIgnoreCase("check")) {
+                players.get(playerNumber).setHasChecked(true);
+                return true;
             }
         }
-
-        return result;
+        else if(wasRaised) {
+            if (playerMoveArray[0].equalsIgnoreCase("Raise")) {
+                minimalPot = Integer.parseInt(playerMoveArray[1]);
+                potOnTable += Integer.parseInt(playerMoveArray[1]);
+                players.get(playerNumber).addCoins(-1 *Integer.parseInt(playerMoveArray[1]));
+                return true;
+            } else if (playerMoveArray[0].equalsIgnoreCase("call")) {
+                potOnTable += minimalPot;
+                players.get(playerNumber).addCoins(-1 *minimalPot);
+                return true;
+            }
+        }
+        return false;
     }
+
+
 
     public String tellWhatMoves(int playerNumber) {
         String result = "I DONT KNOW!!! DEBUG ME";
         if(!players.get(playerNumber).isPlaying())
             result = "You Folded your cards. Need to wait.";
         else if (!wasRaised) {
-            result = "You can:\nFold\nCheck\nRaise (minimum:" + (minimalPot+10) + ")";
-        } else {
-            result = "You can:\nFold\nCall (cost:" + minimalPot + ")\nRaise (minimum:" + (minimalPot+10) + ")";
+            result = "You can:\nFold\nCheck\nRaise (minimum:" + (minimalPot+10) + ")" + "\nStatus";
+        }else {
+            result = "You can:\nFold\nCall (cost:" + minimalPot + ")\nRaise (minimum:" + (minimalPot+10) + ")" + "\nStatus";
         }
 
         return result;
+    }
+
+    public int endRound() {
+        int winner = getRoundWinner();
+        players.get(winner).addCoins(potOnTable);
+        resetAllStatistics();
+        numOfRounds++;
+        return winner;
+    }
+
+    public void resetAllStatistics() {
+        potOnTable = 0;
+        minimalPot = ante;
+        wasChanged = false;
+        wasRaised = false;
+        deck.resetDeck();
+        for (Player player : players) {
+            player.setHasChecked(false);
+            player.setPlaying(true);
+            player.putAsideAllCards();
+            addPlayerToTable(player);
+        }
+    }
+
+    private void addPlayerToTable(Player player) {
+        player.setPlaying(player.getCoins() > ante);
+        if (player.isPlaying()) {
+            potOnTable += ante;
+            player.addCoins(-1 * ante);
+            player.getFiveCards(deck);
+        }
+    }
+    public int getRoundWinner() {
+        int maxVal = -1;
+        int winner = -1;
+        for (int i = 0; i < players.size(); ++i) {
+            if (maxVal < players.get(i).getResult()) {
+                maxVal = players.get(i).getResult();
+                winner = i;
+            }
+        }
+        return winner;
+    }
+
+    public boolean isEndOFRound() {
+        if (!wasRaised) {
+            //sprawdz czy kazdy juz zrobil check lub fold
+            for (Player player : players) {
+                if(!player.isHasChecked() && player.isPlaying())
+                    return false;
+            }
+        }
+        if (wasRaised) {
+            for (Player player : players) {
+                if (player.isPlaying()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
     public void addPlayer(Player _player) {
         players.add(_player);
