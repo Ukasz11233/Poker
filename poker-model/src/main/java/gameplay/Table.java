@@ -60,7 +60,7 @@ public class Table {
         String [] playerMoveArray = playerMove.split("\\s", 2);
         if (playerMoveArray[0].equalsIgnoreCase("fold")) {
 
-            players.get(playerNumber).setPlaying(true);
+            players.get(playerNumber).setPlaying(false);
         }
 
         if (!wasRaised) {
@@ -74,7 +74,7 @@ public class Table {
 
     public String tellWhatMoves(int playerNumber) {
         String result = "I DONT KNOW!!! DEBUG ME";
-        if(players.get(playerNumber).isPlaying())
+        if(!players.get(playerNumber).isPlaying())
             result = "You Folded your cards. Need to wait.";
         else if (!wasRaised) {
             result = "You can:\nFold\nCheck\nRaise (minimum:" + (minimalPot+10) + ")";
