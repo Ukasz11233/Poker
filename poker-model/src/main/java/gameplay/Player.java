@@ -2,6 +2,8 @@ package gameplay;
 
 import java.util.ArrayList;
 
+import static java.util.Collections.max;
+
 public class Player {
     private ArrayList<Card> cards;
 
@@ -44,18 +46,38 @@ public class Player {
         result = countResult();
     }
 
+    //Metoda na potrzeby testów
+    public void getFiveCards(ArrayList<Card> arrayCards) {
+        for (int i = 0; i < 5; i++) {
+            cards.add(arrayCards.get(i));
+        }
+        result = countResult();
+    }
+
     public void putAsideAllCards() {
         cards = new ArrayList<>(5);
         result = 0;
     }
 
-    private int countResult() {
+    public int countResult() {
         int result = 0;
-        for (Card card : cards) {
-            result += card.cardValue();
+        int tempResult = 0;
+        FiveCards fiveCards = new FiveCards(cards);
+        fiveCards.sortFiveCards();
+        for (Deck.rules rule : Deck.rules.values()) {
+            if (fiveCards.checkRule(rule)) {
+                tempResult = (int) (Math.pow(2, (rule.ordinal()))*Math.pow(2, 5));
+                result =  Math.max(result, tempResult);
+            }
         }
+        for(int i = 4; i >=0; --i)
+        {
+            result += (fiveCards.getFiveCards().get(i).getRank().ordinal() + 1)*Math.pow(2, i);
+        }
+
         return result;
     }
+
 
 
 

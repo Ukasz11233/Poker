@@ -133,6 +133,9 @@ public class Table {
         int maxVal = -1;
         int winner = -1;
         for (int i = 0; i < players.size(); ++i) {
+            // jesli fold to nie moze wygrac
+            if(!players.get(i).isPlaying())
+                continue;
             if (maxVal < players.get(i).getResult()) {
                 maxVal = players.get(i).getResult();
                 winner = i;
@@ -141,19 +144,26 @@ public class Table {
         return winner;
     }
 
-    public boolean isEndOFRound() {
-        if (!wasRaised) {
-            //sprawdz czy kazdy juz zrobil check lub fold
-            for (Player player : players) {
-                if(!player.isHasChecked() && player.isPlaying())
-                    return false;
-            }
+    public boolean isEndOFRound(int playerIdx) {
+        return isEveryoneExceptCurrPlayerFolded(playerIdx) || hasEveryoneChecked();
+    }
+
+    private boolean hasEveryoneChecked() {
+        for (Player player : players) {
+            if(!player.isHasChecked())
+                return false;
         }
-        if (wasRaised) {
-            for (Player player : players) {
-                if (player.isPlaying()) {
-                    return false;
-                }
+        return true;
+    }
+
+    private boolean isEveryoneExceptCurrPlayerFolded(int currPlayerIdx) {
+        Player currPlayer = players.get(currPlayerIdx);
+        for (Player player : players) {
+            if(player.equals(currPlayer)) {
+                continue;
+            }
+            if(player.isPlaying()) {
+                return false;
             }
         }
         return true;

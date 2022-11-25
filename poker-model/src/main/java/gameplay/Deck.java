@@ -52,18 +52,8 @@ public class Deck {
         }
     }
 
-    public static int checkRule(rules rule, ArrayList<Card> cards) {
-        int result = -1;
-        int tmp_result = -1;
-        if (rule.toString() == "HIGH_CARD") {
-            for (Card card : cards) {
-                if (card.getRank().ordinal() > tmp_result) {
-                    tmp_result = card.getRank().ordinal();
-                }
-            }
-        }
-    }
 }
+
 
 class CardRankComparator implements Comparator<Card> {
     public int compare(Card cardA, Card cardB) {

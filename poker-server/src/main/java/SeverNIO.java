@@ -123,6 +123,7 @@ class ServerNIO {
         SocketChannel client = (SocketChannel) sk.channel();
         String receivedMessage;
         bufferOperations.clearBuffer(readBuffer);
+
         int read = client.read(readBuffer);
         if (read == -1) {
             logs.debug("read==-1");
@@ -131,13 +132,13 @@ class ServerNIO {
             receivedMessage = new String(readBuffer.array()).trim();
             logs.debug(receivedMessage);
             sk.interestOps(SelectionKey.OP_WRITE);
+            if (table.isEndOFRound(currClient)) {
+                int winner = table.endRound();
+                handleWrite(sk, "winner id: " + winner);
+                debug("Koniec rundy ");
+            }
             if (table.readPlayerMove(receivedMessage, playersId.get(client))) {
                 numberOfMesseges++;
-                //zrob cos z tym ruchem
-                if (table.isEndOFRound()) {
-                    int winner = table.endRound();
-                    handleWrite(sk, "winner id: " + winner);
-                }
                 debug("Wiadomosc poprawna!");
             }
             if (receivedMessage.equalsIgnoreCase("status")) {
@@ -149,35 +150,34 @@ class ServerNIO {
     private void handleWrite(SelectionKey sk, String msg) throws IOException {
         SocketChannel client = (SocketChannel) sk.channel();
         bufferOperations.clearBuffer(writeBuffer);
-
+        String messageToInsert = "";
         if (!hasGameStarted.get(playersId.get(client))) {
-            writeBuffer.put("starting game\n".getBytes());
-            writeBuffer.put(( table + "\n" + table.playerInfo(playersId.get(client))).getBytes());
+            messageToInsert = "starting game\n" + table + "\n" + table.playerInfo(playersId.get(client));
             if (currClient == playersId.get(client)) {
-                writeBuffer.put(("\n" + table.tellWhatMoves(playersId.get(client)) + "\nIt is your move\n").getBytes());
+                messageToInsert += "\n" + table.tellWhatMoves(playersId.get(client)) + "\nIt is your move\n";
             } else {
-                writeBuffer.put(("\nIt is player " + currClient + " move\n").getBytes());
+                messageToInsert += "\nIt is player " + currClient + " move\n";
             }
             hasGameStarted.put(playersId.get(client), true);
         }
         else {
             if (msg.equalsIgnoreCase("your move!")) {
-                debug("Curr client: " + currClient);
                 if (currClient == playersId.get(client)) {
-                    writeBuffer.put(table.tellWhatMoves(playersId.get(client)).getBytes());
+                    messageToInsert = table.tellWhatMoves(playersId.get(client);
                 } else {
-                    writeBuffer.put("It is not your move. You can check status of the game.".getBytes());
+                    messageToInsert = "It is not your move. You can check status of the game.";
                 }
             }
             if (msg.equalsIgnoreCase("status")) {
-                writeBuffer.put(("Status: Ruch wykonuje gracz o id: " + currClient + " Twoje id: " + playersId.get(client) + "\n" + table + "\n" +
-                        table.playerInfo(playersId.get(client)) + "\n" + table.tellWhatMoves(playersId.get(client))).getBytes());
+                messageToInsert += "Status: Ruch wykonuje gracz o id: " + currClient + " Twoje id: " + playersId.get(client) + "\n" + table + "\n" +
+                table.playerInfo(playersId.get(client)) + "\n" + table.tellWhatMoves(playersId.get(client));
             } else if (msg.contains("winner")) {
-                writeBuffer.put(msg.getBytes());
+                messageToInsert += msg.getBytes();
             }else  {
-                writeBuffer.put("empty message".getBytes());
+                messageToInsert = "empty message";
             }
         }
+        writeBuffer.put(messageToInsert.getBytes());
         writeBuffer.flip();
         int write = client.write(writeBuffer);
 

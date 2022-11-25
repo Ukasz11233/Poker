@@ -5,6 +5,8 @@ import org.junit.Test;
 
 import javax.lang.model.type.DeclaredType;
 
+import java.util.ArrayList;
+
 import static org.junit.Assert.*;
 
 public class TestDeck {
@@ -67,6 +69,8 @@ public class TestDeck {
             assertEquals(Card.rank.values()[i/numOfSuits], topCardFromDeck.getRank());
         }
     }
+
+
 
 
 }
