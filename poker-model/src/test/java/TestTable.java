@@ -78,7 +78,7 @@ public class TestTable {
         table.wasRaised = false;
         player1.setPlaying(true);
         player2.setPlaying(false);
-        assertFalse(table.isEndOFRound());
+        assertFalse(table.isEndOFRound(1));
     }
 
     @Test
@@ -86,7 +86,7 @@ public class TestTable {
         table.wasRaised = false;
         player1.setHasChecked(true);
         player2.setHasChecked(true);
-        assertTrue(table.isEndOFRound());
+        assertTrue(table.isEndOFRound(1));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class TestTable {
         table.wasRaised = false;
         player1.setHasChecked(true);
         player2.setHasChecked(false);
-        assertFalse(table.isEndOFRound());
+        assertFalse(table.isEndOFRound(1));
     }
 
     @Test
@@ -102,7 +102,7 @@ public class TestTable {
         table.wasRaised = false;
         player1.setHasChecked(true);
         player2.setPlaying(false);
-        assertTrue(table.isEndOFRound());
+        assertTrue(table.isEndOFRound(0));
     }
 
 
