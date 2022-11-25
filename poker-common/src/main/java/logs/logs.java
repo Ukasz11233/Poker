@@ -1,5 +1,6 @@
 package logs;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class logs {
@@ -9,4 +10,5 @@ public class logs {
     public void debugPosition(ByteBuffer bb) {
         System.out.println("Pozycja: " + bb.position() + " Limit: " + bb.limit() + " Capacity: " + bb.capacity());
     }
+
 }

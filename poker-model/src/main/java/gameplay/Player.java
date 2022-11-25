@@ -7,7 +7,6 @@ import static java.util.Collections.max;
 public class Player {
     private ArrayList<Card> cards;
 
-    private String username;
     private int coins;
 
     // Zmienna do gameplay-u
@@ -18,8 +17,7 @@ public class Player {
     private int result;
 
 
-    public Player(String _username) {
-        username = _username;
+    public Player() {
         coins = 400;
         cards = new ArrayList<>();
         isPlaying = false;

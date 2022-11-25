@@ -12,7 +12,7 @@ public class TestPlayer{
     private Player testedPlayer;
     @Before
     public void createTestedPlayer() {
-        testedPlayer = new Player("Player");
+        testedPlayer = new Player();
     }
 
     @Test

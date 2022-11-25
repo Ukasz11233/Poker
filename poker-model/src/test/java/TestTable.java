@@ -25,8 +25,8 @@ public class TestTable {
     @Before
     public void CreateTableAnd2PlayersAnte20() {
         table = new Table(20);
-        player1 = new Player("player1");
-        player2 = new Player("player2");
+        player1 = new Player();
+        player2 = new Player();
 
         table.addPlayer(player1);
         table.addPlayer(player2);

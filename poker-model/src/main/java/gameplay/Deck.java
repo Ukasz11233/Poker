@@ -37,7 +37,6 @@ public class Deck {
     }
 
     public void resetDeck() {
-        cardDeck.removeAll(cardDeck);
         cardDeck = new ArrayList<>(52);
         createDeck();
     }

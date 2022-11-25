@@ -1,3 +1,5 @@
+package client;
+
 import logs.*;
 import bufferOperations.*;
 
@@ -9,13 +11,16 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Scanner;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class ClientNIO {
+    Logger logger = Logger.getAnonymousLogger();
     private SocketChannel client;
     private Selector selector;
     private ByteBuffer readBuffer = ByteBuffer.allocate(bufferOperations.BUFFER_SIZE);
     private ByteBuffer writeBuffer = ByteBuffer.allocate(bufferOperations.BUFFER_SIZE);
     private Scanner scanner;
-    private String username;
     private String msgToSend = "";
     private String msgReceived = "";
     private boolean hasGameStarted = false;
@@ -42,7 +47,7 @@ public class ClientNIO {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.OFF, "context", e);
         }
 
     }
