@@ -16,10 +16,10 @@ public class TestTable {
     public void TestTableConstructor() {
         Table table = new Table(10);
 
-        assertEquals(table.numOfRounds, 0);
+        assertEquals(0, table.numOfRounds);
         assertFalse(table.wasChanged);
         assertFalse(table.wasRaised);
-        assertEquals(table.playerToStop, 0);
+        assertEquals(0, table.playerToStop);
     }
 
     @Before

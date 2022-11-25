@@ -6,49 +6,50 @@ public class Card {
 
 
     public enum suit{ HEART, SPADE, CLUB, DIAMOND}
-    public enum rank{TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE}
 
+
+    public enum rank{TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE;}
+    private suit cardSuit;
+    private rank cardRank;
     public static int compare(Card cardA, Card cardB) {
-        if (cardA._rank.ordinal() == cardB._rank.ordinal()) {
+        if (cardA.cardRank.ordinal() == cardB.cardRank.ordinal()) {
             return 0;
-        } else if (cardA._rank.ordinal() > cardB._rank.ordinal()) {
+        } else if (cardA.cardRank.ordinal() > cardB.cardRank.ordinal()) {
             return 1;
         } else {
             return -1;
         }
     }
+
     public Card(suit tempSuit, rank tempRank)
     {
-        _suit = tempSuit;
-        _rank = tempRank;
+        cardSuit = tempSuit;
+        cardRank = tempRank;
     }
 
     public int cardValue() {
-        return _rank.ordinal() * _suit.ordinal();
+        return cardRank.ordinal() * cardSuit.ordinal();
     }
-
     public Card() {}
-    private suit _suit;
-    private rank _rank;
 
     public void setSuit(suit tempSuit) {
-        _suit = tempSuit;
+        cardSuit = tempSuit;
     }
 
     public void setRank(rank tempRank) {
-        _rank = tempRank;
+        cardRank = tempRank;
     }
 
     public suit getSuit() {
-        return _suit;
+        return cardSuit;
     }
 
     public rank getRank() {
-        return _rank;
+        return cardRank;
     }
 
     public String toString() {
-        return "Suit: " + _suit + " Rank: " + _rank;
+        return "Suit: " + cardSuit + " Rank: " + cardRank;
     }
 
     @Override
@@ -56,12 +57,12 @@ public class Card {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Card card = (Card) o;
-        return _suit == card._suit && _rank == card._rank;
+        return cardSuit == card.cardSuit && cardRank == card.cardRank;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(_suit, _rank);
+        return Objects.hash(cardSuit, cardRank);
     }
 }
 

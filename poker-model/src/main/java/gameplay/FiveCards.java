@@ -2,20 +2,19 @@ package gameplay;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 public class FiveCards extends Deck {
-    public ArrayList<Card> getFiveCards() {
-        return fiveCards;
+    public List<Card> getCurrCards() {
+        return currCards;
     }
 
-    private ArrayList<Card> fiveCards = new ArrayList<>(5);
+    private List<Card> currCards = new ArrayList<>(5);
 
 
 
-    public FiveCards(ArrayList<Card> cards) {
-        for (Card card : cards) {
-            fiveCards.add(card);
-        }
+    public FiveCards(List<Card> cards) {
+        currCards.addAll(cards);
     }
 
     public void sortFiveCards() {
@@ -23,7 +22,7 @@ public class FiveCards extends Deck {
         Comparator<Card> comp = Comparator.comparing(Card::getRank);
         comp = comp.thenComparing(Comparator.comparing(Card::getSuit));
 
-        fiveCards.sort(comp);
+        currCards.sort(comp);
     }
 
 
@@ -39,7 +38,7 @@ public class FiveCards extends Deck {
             return checkFullHouse();
         if (rule == rules.FLUSH)
             return checkFlush();
-        if(rule == rules.STRAIGT)
+        if(rule == rules.STRAIGHT)
             return checkStraight();
         if(rule == rules.THREE_OF_A_KIND)
             return checkThreeOfAKind();
@@ -47,21 +46,18 @@ public class FiveCards extends Deck {
             return checkTwoPair();
         if(rule == rules.ONE_PAIR)
             return checkOnePair();
-        if(rule == rules.HIGH_CARD)
-            return true;
-
-        return false;
+        return rule == rules.HIGH_CARD;
     }
 
     private boolean checkRoyalFlush() {
-        Card.suit suit = fiveCards.get(0).getSuit();
-        Card.rank highestRank = fiveCards.get(4).getRank();
+        Card.suit suit = currCards.get(0).getSuit();
+        Card.rank highestRank = currCards.get(4).getRank();
         if (highestRank != Card.rank.ACE) {
             return false;
         }
         int rankDown = 1;
         for (int i = 3; i >=0 ; --i) {
-            if (fiveCards.get(i).getSuit() != suit || (fiveCards.get(i).getRank().ordinal()) != highestRank.ordinal() - rankDown) {
+            if (currCards.get(i).getSuit() != suit || (currCards.get(i).getRank().ordinal()) != highestRank.ordinal() - rankDown) {
                 return false;
             }
             rankDown++;
@@ -70,11 +66,11 @@ public class FiveCards extends Deck {
     }
 
     private boolean checkStraightFlush() {
-        Card.suit suit = fiveCards.get(0).getSuit();
-        Card.rank highestRank = fiveCards.get(4).getRank();
+        Card.suit suit = currCards.get(0).getSuit();
+        Card.rank highestRank = currCards.get(4).getRank();
         int rankDown = 0;
         for (int i = 4; i >=0 ; --i) {
-            if (fiveCards.get(i).getSuit() != suit || (fiveCards.get(i).getRank().ordinal()) != highestRank.ordinal() - rankDown) {
+            if (currCards.get(i).getSuit() != suit || (currCards.get(i).getRank().ordinal()) != highestRank.ordinal() - rankDown) {
                 return false;
             }
             rankDown++;
@@ -85,9 +81,9 @@ public class FiveCards extends Deck {
     private boolean checkFourOfAKind() {
         //skoro sa posortowane, to musza byc 4 takie same obok siebie.
         int counter = 0;
-        Card.rank rank = fiveCards.get(2).getRank();
+        Card.rank rank = currCards.get(2).getRank();
         for (int i = 0; i < 5; ++i) {
-            if(fiveCards.get(i).getRank().ordinal() == rank.ordinal())
+            if(currCards.get(i).getRank().ordinal() == rank.ordinal())
                 counter++;
         }
 
@@ -95,16 +91,16 @@ public class FiveCards extends Deck {
     }
 
     private boolean checkFullHouse() {
-        Card.rank higherRank = fiveCards.get(4).getRank();
-        Card.rank lowerRank = fiveCards.get(0).getRank();
+        Card.rank higherRank = currCards.get(4).getRank();
+        Card.rank lowerRank = currCards.get(0).getRank();
 
         int counterHigherRank = 0;
         int counterLowerRank = 0;
         for(int i = 0; i < 5; ++i)
         {
-            if(fiveCards.get(i).getRank().equals(higherRank))
+            if(currCards.get(i).getRank().equals(higherRank))
                 counterHigherRank++;
-            if(fiveCards.get(i).getRank().equals(lowerRank))
+            if(currCards.get(i).getRank().equals(lowerRank))
                 counterLowerRank++;
         }
 
@@ -112,21 +108,21 @@ public class FiveCards extends Deck {
     }
 
     private boolean checkFlush() {
-        Card.suit suit = fiveCards.get(4).getSuit();
-        Card.rank highestRank = fiveCards.get(4).getRank();
+        Card.suit suit = currCards.get(4).getSuit();
+        Card.rank highestRank = currCards.get(4).getRank();
 
         for (int i = 3; i >= 0; --i) {
-            if(fiveCards.get(i).getRank().ordinal() >= highestRank.ordinal() || !fiveCards.get(i).getSuit().equals(suit))
+            if(currCards.get(i).getRank().ordinal() >= highestRank.ordinal() || !currCards.get(i).getSuit().equals(suit))
                 return false;
         }
         return true;
     }
 
     private boolean checkStraight() {
-        Card.rank highestRank = fiveCards.get(4).getRank();
+        Card.rank highestRank = currCards.get(4).getRank();
         int rankDown = 0;
         for (int i = 4; i >=0 ; --i) {
-            if ((fiveCards.get(i).getRank().ordinal()) != highestRank.ordinal() - rankDown) {
+            if ((currCards.get(i).getRank().ordinal()) != highestRank.ordinal() - rankDown) {
                 return false;
             }
             rankDown++;
@@ -137,9 +133,9 @@ public class FiveCards extends Deck {
     private boolean checkThreeOfAKind() {
         //skoro sa posortowane, to musza byc 3 takie same obok siebie.
         int counter = 0;
-        Card.rank rank = fiveCards.get(2).getRank();
+        Card.rank rank = currCards.get(2).getRank();
         for (int i = 0; i < 5; ++i) {
-            if(fiveCards.get(i).getRank().ordinal() == rank.ordinal())
+            if(currCards.get(i).getRank().ordinal() == rank.ordinal())
                 counter++;
         }
 
@@ -147,19 +143,19 @@ public class FiveCards extends Deck {
     }
 
     private boolean checkTwoPair() {
-        Card.rank rank0 = fiveCards.get(0).getRank();
-        Card.rank rank2 = fiveCards.get(2).getRank();
-        Card.rank rank4 = fiveCards.get(4).getRank();
+        Card.rank rank0 = currCards.get(0).getRank();
+        Card.rank rank2 = currCards.get(2).getRank();
+        Card.rank rank4 = currCards.get(4).getRank();
         int rank0Counter = 0;
         int rank2Counter = 0;
         int rank4Counter = 0;
 
         for (int i = 0; i < 5; ++i) {
-            if(fiveCards.get(i).getRank().equals(rank0))
+            if(currCards.get(i).getRank().equals(rank0))
                 rank0Counter++;
-            if(fiveCards.get(i).getRank().equals(rank2))
+            if(currCards.get(i).getRank().equals(rank2))
                 rank2Counter++;
-            if(fiveCards.get(i).getRank().equals(rank4))
+            if(currCards.get(i).getRank().equals(rank4))
                 rank4Counter++;
         }
 
@@ -170,7 +166,7 @@ public class FiveCards extends Deck {
 
         for(int i = 0 ; i < 4; i++)
         {
-            if(fiveCards.get(i).getRank().equals(fiveCards.get(i+1).getRank()))
+            if(currCards.get(i).getRank().equals(currCards.get(i+1).getRank()))
                 return true;
         }
         return false;

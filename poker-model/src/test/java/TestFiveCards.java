@@ -153,7 +153,7 @@ public class TestFiveCards {
         cards.add(new Card(Card.suit.HEART, Card.rank.EIGHT));
 
         fiveCards = new FiveCards(cards);
-        assertTrue(fiveCards.checkRule(Deck.rules.STRAIGT));
+        assertTrue(fiveCards.checkRule(Deck.rules.STRAIGHT));
     }
 
     @Test
@@ -165,7 +165,7 @@ public class TestFiveCards {
         cards.add(new Card(Card.suit.HEART, Card.rank.SEVEN));
 
         fiveCards = new FiveCards(cards);
-        assertFalse(fiveCards.checkRule(Deck.rules.STRAIGT));
+        assertFalse(fiveCards.checkRule(Deck.rules.STRAIGHT));
     }
 
     @Test

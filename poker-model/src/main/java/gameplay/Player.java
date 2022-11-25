@@ -1,11 +1,11 @@
 package gameplay;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import static java.util.Collections.max;
 
 public class Player {
-    private ArrayList<Card> cards;
+    private List<Card> cards;
 
     private int coins;
 
@@ -26,15 +26,15 @@ public class Player {
     }
 
     public String toString() {
-        StringBuilder result = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         int idx = 1;
         if(cards != null)
         {
             for (Card cartToStr : cards) {
-                result.append("\n").append(idx++).append(".").append(cartToStr);
+                stringBuilder.append("\n").append(idx++).append(".").append(cartToStr);
             }
         }
-        return result.toString();
+        return stringBuilder.toString();
     }
 
     public void getFiveCards(Deck deck) {
@@ -45,7 +45,7 @@ public class Player {
     }
 
     //Metoda na potrzeby testów
-    public void getFiveCards(ArrayList<Card> arrayCards) {
+    public void getFiveCards(List<Card> arrayCards) {
         for (int i = 0; i < 5; i++) {
             cards.add(arrayCards.get(i));
         }
@@ -58,22 +58,22 @@ public class Player {
     }
 
     public int countResult() {
-        int result = 0;
-        int tempResult = 0;
+        int currentResult = 0;
+        int tempResult;
         FiveCards fiveCards = new FiveCards(cards);
         fiveCards.sortFiveCards();
         for (Deck.rules rule : Deck.rules.values()) {
             if (fiveCards.checkRule(rule)) {
                 tempResult = (int) (Math.pow(2, (rule.ordinal()))*Math.pow(2, 5));
-                result =  Math.max(result, tempResult);
+                currentResult =  Math.max(currentResult, tempResult);
             }
         }
         for(int i = 4; i >=0; --i)
         {
-            result += (fiveCards.getFiveCards().get(i).getRank().ordinal() + 1)*Math.pow(2, i);
+            currentResult += (fiveCards.getCurrCards().get(i).getRank().ordinal() + 1)*Math.pow(2, i);
         }
 
-        return result;
+        return currentResult;
     }
 
 
@@ -84,8 +84,8 @@ public class Player {
         return coins;
     }
 
-    public void addCoins(int _coins){
-        coins += _coins;
+    public void addCoins(int coinsToAdd){
+        coins += coinsToAdd;
     }
 
     public boolean isPlaying() {

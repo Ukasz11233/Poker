@@ -3,7 +3,7 @@ package server;
 import gameplay.Player;
 import gameplay.Table;
 import logs.*;
-import bufferOperations.*;
+import buffer_operations.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -16,11 +16,11 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static logs.logs.debug;
+import static logs.Logs.debug;
 
 public class ServerNIO {
 
-    Logger logger = Logger.getAnonymousLogger();
+    private final Logger logger = Logger.getAnonymousLogger();
     private ServerSocketChannel ssc;
     private Selector selector;
 
@@ -40,12 +40,12 @@ public class ServerNIO {
 
     private Map<Integer, Boolean> wasRoundFinished;
 
-    final private ByteBuffer readBuffer = ByteBuffer.allocate(bufferOperations.BUFFER_SIZE);
-    final private ByteBuffer writeBuffer = ByteBuffer.allocate(bufferOperations.BUFFER_SIZE);
+    private final ByteBuffer readBuffer = ByteBuffer.allocate(BufferOperations.bufferSize);
+    private final ByteBuffer writeBuffer = ByteBuffer.allocate(BufferOperations.bufferSize);
     Table table;
 
-    public void runServer(int portNumber, int _numberOfPlayers) throws IOException {
-        initalizeServer(portNumber, _numberOfPlayers);
+    public void runServer(int portNumber, int numberOfPlayersToSet) throws IOException {
+        initalizeServer(portNumber, numberOfPlayersToSet);
 
         try {
             while (!killServer) {
@@ -60,7 +60,7 @@ public class ServerNIO {
                 runGame(it);
             }
         } catch (IOException e) {
-            logger.log(Level.OFF, "catch", e);
+            logger.log(Level.OFF, "catch runServer", e);
             killServer = true;
         }
     }
@@ -77,11 +77,9 @@ public class ServerNIO {
     }
 
     private void checkGameStarted() {
-        if (conenctedUsers == numberOfPlayers) {
-            if (!gameStarted) {
-                gameStarted = true;
-                table.startGame();
-            }
+        if (conenctedUsers == numberOfPlayers && !gameStarted) {
+            gameStarted = true;
+            table.startGame();
         }
     }
 
@@ -103,8 +101,8 @@ public class ServerNIO {
             it.remove();
         }
     }
-    private void initalizeServer(int portNumber, int _numberOfPlayers) {
-        numberOfPlayers = _numberOfPlayers;
+    private void initalizeServer(int portNumber, int numberOfPlayersToSet) {
+        numberOfPlayers = numberOfPlayersToSet;
         playersId = new HashMap<>();
         hasGameStarted = new HashMap<>();
         wasRoundFinished = new HashMap<>();
@@ -118,8 +116,8 @@ public class ServerNIO {
             ssc.configureBlocking(false);
             ssc.register(selector, SelectionKey.OP_ACCEPT);
         } catch (IOException e) {
-            logs.debug("Wyjatek w inicjalizacji serwera");
-            e.printStackTrace();
+            Logs.debug("Wyjatek w inicjalizacji serwera");
+            logger.log(Level.OFF, "catch initalize", e);
         }
     }
 
@@ -142,7 +140,7 @@ public class ServerNIO {
             }
 
             // Sending first message to player.
-            bufferOperations.clearBuffer(writeBuffer);
+            BufferOperations.clearBuffer(writeBuffer);
             writeBuffer.put("We are waiting for players".getBytes());
             writeBuffer.clear();
             sc.write(writeBuffer);
@@ -154,17 +152,17 @@ public class ServerNIO {
         try {
             SocketChannel client = (SocketChannel) sk.channel();
             int clientId = playersId.get(client);
-            bufferOperations.clearBuffer(readBuffer);
+            BufferOperations.clearBuffer(readBuffer);
             int read = client.read(readBuffer);
             if (read == -1) {
-                logs.debug("read==-1");
+                Logs.debug("read==-1");
                 removeClient(client);
             } else if (read > 0) {
                 sk.interestOps(SelectionKey.OP_WRITE);
                 readMessage(sk, clientId);
             }
         } catch (IOException e) {
-            logger.log(Level.OFF, "catch", e);
+            logger.log(Level.OFF, "catch handleRead", e);
         }
     }
 
@@ -183,10 +181,10 @@ public class ServerNIO {
     private void handleWrite(SelectionKey sk, String msg) throws IOException {
         SocketChannel client = (SocketChannel) sk.channel();
         int clientId = playersId.get(client);
-        bufferOperations.clearBuffer(writeBuffer);
+        BufferOperations.clearBuffer(writeBuffer);
         String messageToInsert = "";
 
-        if (!hasGameStarted.get(playersId.get(client))) {
+        if (Boolean.FALSE.equals(hasGameStarted.get(clientId))) {
             messageToInsert += fillMessageBeforeGameStart(messageToInsert, clientId);
         }
         else {

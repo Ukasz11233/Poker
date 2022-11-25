@@ -5,10 +5,10 @@ import java.util.ArrayList;
 public class Table {
     private int numOfPlayers;
     private ArrayList<Player> players;
-    private Deck deck;
+    private final Deck deck;
     private int potOnTable;
 
-    private int ante;
+    private final int ante;
 
     // Pola do gameplay-u
     public int numOfRounds;
@@ -18,13 +18,13 @@ public class Table {
 
     private int minimalPot;
 
-    public Table(int _ante) {
+    public Table(int anteToSet) {
         players = new ArrayList<>();
         deck = new Deck();
         //deck.shuffleDeck(); //latwiej debugowac
         numOfPlayers = 0;
         potOnTable = 0;
-        ante = _ante;
+        ante = anteToSet;
         minimalPot = ante;
 
         numOfRounds = 0;
@@ -69,7 +69,7 @@ public class Table {
                 return true;
             }
         }
-        else if(wasRaised) {
+        else{
             if (playerMoveArray[0].equalsIgnoreCase("Raise")) {
                 minimalPot = Integer.parseInt(playerMoveArray[1]);
                 potOnTable += Integer.parseInt(playerMoveArray[1]);
@@ -87,7 +87,7 @@ public class Table {
 
 
     public String tellWhatMoves(int playerNumber) {
-        String result = "I DONT KNOW!!! DEBUG ME";
+        String result;
         if(!players.get(playerNumber).isPlaying())
             result = "You Folded your cards. Need to wait.";
         else if (!wasRaised) {
@@ -168,8 +168,8 @@ public class Table {
         }
         return true;
     }
-    public void addPlayer(Player _player) {
-        players.add(_player);
+    public void addPlayer(Player playerToAdd) {
+        players.add(playerToAdd);
         numOfPlayers++;
     }
 

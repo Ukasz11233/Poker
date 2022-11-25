@@ -1,7 +1,7 @@
 package client;
 
 import logs.*;
-import bufferOperations.*;
+import buffer_operations.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -15,21 +15,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ClientNIO {
-    Logger logger = Logger.getAnonymousLogger();
+    private final Logger logger = Logger.getAnonymousLogger();
     private SocketChannel client;
     private Selector selector;
-    private ByteBuffer readBuffer = ByteBuffer.allocate(bufferOperations.BUFFER_SIZE);
-    private ByteBuffer writeBuffer = ByteBuffer.allocate(bufferOperations.BUFFER_SIZE);
+    private final ByteBuffer readBuffer = ByteBuffer.allocate(BufferOperations.bufferSize);
+    private  ByteBuffer writeBuffer = ByteBuffer.allocate(BufferOperations.bufferSize);
     private Scanner scanner;
-    private String msgToSend = "";
-    private String msgReceived = "";
     private boolean hasGameStarted = false;
 
-
-    public static void main(String ... args) throws IOException {
-        ClientNIO newClient = new ClientNIO();
-        newClient.runClient();
-    }
 
     public void runClient() {
         try {
@@ -55,15 +48,15 @@ public class ClientNIO {
 
 
     private void receiveMessage(SelectionKey key) throws IOException {
-        bufferOperations.clearBuffer(readBuffer);
+        BufferOperations.clearBuffer(readBuffer);
         if (client.read(readBuffer) == -1) {
-            logs.debug("empty message");
+            Logs.debug("empty message");
         }
-        msgReceived = new String(readBuffer.array()).trim();
+        String msgReceived = new String(readBuffer.array()).trim();
         if (msgReceived.contains("starting game")) {
             hasGameStarted = true;
         }
-        System.out.println("response = " + msgReceived);
+        logger.log(Level.INFO, "response = {0}", msgReceived);
         if (hasGameStarted) {
             key.interestOps(SelectionKey.OP_WRITE);
         }
@@ -71,9 +64,9 @@ public class ClientNIO {
 
     private void sendMessage(SelectionKey key) throws IOException {
         writeBuffer.clear();
-        msgToSend = scanner.nextLine();
+        String msgToSend = scanner.nextLine();
         if (msgToSend.isEmpty()) {
-            logs.debug("empty string");
+            Logs.debug("empty string");
             msgToSend = "empty string";
         }
         writeBuffer = ByteBuffer.wrap(msgToSend.getBytes());
