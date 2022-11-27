@@ -22,7 +22,9 @@ public class TestPlayer{
     }
 
     @Test
-    public void tesPlayerToEmptyString() {
+    public void tesPlayerToEmptyString()
+    {
+        testedPlayer.putAsideAllCards();
         assertEquals("", testedPlayer.toString());
     }
 

@@ -24,9 +24,9 @@ public class ClientNIO {
     private boolean hasGameStarted = false;
 
 
-    public void runClient() {
+    public void runClient(int portNumber) {
         try {
-            initalizeClient(8090);
+            initalizeClient(portNumber);
             while (true) {
                 selector.select();
                 for (SelectionKey key : selector.selectedKeys()) {

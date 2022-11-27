@@ -12,10 +12,18 @@ public class Table {
     private final int ante;
 
     // Pola do gameplay-u
-    public int numOfRounds;
-    public boolean wasChanged;
-    public boolean wasRaised;
-    public int playerToStop;  //[0..4]
+    private int numOfRounds;
+    private boolean wasChanged;
+
+    public boolean isWasRaised() {
+        return wasRaised;
+    }
+
+    public void setWasRaised(boolean wasRaised) {
+        this.wasRaised = wasRaised;
+    }
+
+    private boolean wasRaised;
 
     private int minimalPot;
 
@@ -30,7 +38,6 @@ public class Table {
         numOfRounds = 0;
         wasChanged = false;
         wasRaised = false;
-        playerToStop = 0; // ? a moze -1
 
     }
 
@@ -43,8 +50,8 @@ public class Table {
     }
 
     public String toString() {
-        return "Status graczy: " + playerAtTableInfo()
-                + "\nPot na stole: " + potOnTable;
+        return "Players status: " + playerAtTableInfo()
+                + "\nPot on table: " + potOnTable;
     }
 
     private String playerAtTableInfo() {
@@ -99,7 +106,7 @@ public class Table {
     public String tellWhatMoves(int playerNumber) {
         String result;
         if(!players.get(playerNumber).isPlaying())
-            result = "You Folded your cards. Need to wait.";
+            result = "You have folded your cards. Need to wait for your move.";
         else if (!wasRaised) {
             result = "You can:\nFold\nCheck\nRaise (minimum:" + (minimalPot+10) + ")" + "\nStatus";
         }else {
@@ -138,7 +145,7 @@ public class Table {
             player.getFiveCards(deck);
         }
     }
-    public int getRoundWinner() {
+    private int getRoundWinner() {
         int maxVal = -1;
         int winner = -1;
         for (int i = 0; i < players.size(); ++i) {
@@ -197,9 +204,6 @@ public class Table {
         numOfPlayers--;
     }
 
-    public void setPlayerToStop(int idx) {
-        playerToStop = idx;
-    }
 
     public int getNextPlayerMove(int currId) {
         int nextPlayerId;
@@ -219,23 +223,4 @@ public class Table {
         return currId;
     }
 
-    public static void main(String[] args) {
-        Table table = new Table(20);
-        Player player1 = new Player();
-        Player player2 = new Player();
-        Player player3 = new Player();
-        Player player4 = new Player();
-
-        table.addPlayer(player1);
-        table.addPlayer(player2);
-        table.addPlayer(player3);
-        table.addPlayer(player4);
-
-        player2.setPlaying(false);
-        player3.setPlaying(false);
-        player4.setPlaying(true);
-
-        System.out.println(table.getNextPlayerMove(0));
-
-    }
 }

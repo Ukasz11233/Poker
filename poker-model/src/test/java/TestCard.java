@@ -5,6 +5,11 @@ import static org.junit.Assert.*;
 public class TestCard {
 
     @Test
+    public void TestDefaultCardConstructo() {
+        Card cardTest = new Card();
+        assertNotNull(cardTest);
+    }
+    @Test
     public void TestCardConstructor() {
         Card cardClubAce = new Card(Card.suit.CLUB, Card.rank.ACE);
 
@@ -55,6 +60,21 @@ public class TestCard {
     public void TestCardValueClubKing() {
         Card cardHeartTwo = new Card(Card.suit.CLUB, Card.rank.KING);
         assertEquals(2*11, cardHeartTwo.cardValue());
+    }
+
+    @Test
+    public void TestSetRank() {
+        Card testCard = new Card();
+        testCard.setRank(Card.rank.FIVE);
+        assertTrue(testCard.getRank().equals(Card.rank.FIVE));
+    }
+
+    @Test
+    public void TestGetRank() {
+        Card testCard = new Card();
+        testCard.setSuit(Card.suit.DIAMOND);
+        assertTrue(testCard.getSuit().equals(Card.suit.DIAMOND));
+
     }
 
 }

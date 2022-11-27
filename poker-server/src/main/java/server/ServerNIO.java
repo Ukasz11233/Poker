@@ -151,10 +151,6 @@ public class ServerNIO {
             conenctedUsers++;
 
             table.addPlayer(new Player());
-            //Jesli gracz dolaczyl jako pierwszy, to ustawiam go jako tego na ktorym konczymy runde
-            if (conenctedUsers == 1) {
-                table.setPlayerToStop(playersId.get(sc));
-            }
 
             // Sending first message to player.
             BufferOperations.clearBuffer(writeBuffer);
