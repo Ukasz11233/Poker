@@ -1,6 +1,4 @@
 package gameplay;
-// TODO dodaj sprawdzanie czy gracz ma wystarczajaca ilosc monet
-// TODO dodaj sprawdzanie wyjatku w "raise" i "check"
 import java.util.ArrayList;
 
 public class Table {
@@ -11,13 +9,6 @@ public class Table {
 
     private final int ante;
 
-    // Pola do gameplay-u
-    private int numOfRounds;
-    private boolean wasChanged;
-
-    public boolean isWasRaised() {
-        return wasRaised;
-    }
 
     public void setWasRaised(boolean wasRaised) {
         this.wasRaised = wasRaised;
@@ -25,6 +16,7 @@ public class Table {
 
     private boolean wasRaised;
 
+    private int playerWhichRaised;
     private int minimalPot;
 
     public Table(int anteToSet) {
@@ -34,15 +26,14 @@ public class Table {
         potOnTable = 0;
         ante = anteToSet;
         minimalPot = ante;
-
-        numOfRounds = 0;
-        wasChanged = false;
         wasRaised = false;
+        playerWhichRaised = -1;
 
     }
 
     public void startGame() {
         deck.shuffleDeck();
+        //potOnTable = 0;
         for (Player player : players) {
             addPlayerToTable(player);
         }
@@ -63,22 +54,32 @@ public class Table {
     }
 
     public String playerInfo(int idx) {
-        return "Coins: " + players.get(idx).getCoins() + "\nCards:" + players.get(idx);
+        return "Your coins: " + players.get(idx).getCoins() + "\nYour cards:" + players.get(idx);
     }
 
     public boolean readPlayerMove(String playerMove, int playerNumber) {
         String [] playerMoveArray = playerMove.split("\\s", 2);
+        if (playerNumber == playerWhichRaised) {
+            minimalPot += 10;
+            wasRaised = false;
+        }
+
         if (playerMoveArray[0].equalsIgnoreCase("fold")) {
             players.get(playerNumber).setPlaying(false);
             return true;
         }
         if (!wasRaised) {
             if (playerMoveArray[0].equalsIgnoreCase("Raise")) {
+                int coinsToAdd = Integer.parseInt(playerMoveArray[1]);
+                if (players.get(playerNumber).getCoins() < coinsToAdd) {
+                    coinsToAdd = players.get(playerNumber).getCoins();
+                }
                 setStatusAfterRaise();
                 wasRaised = true;
-                minimalPot = Integer.parseInt(playerMoveArray[1]);
-                potOnTable += Integer.parseInt(playerMoveArray[1]);
-                players.get(playerNumber).addCoins(-1 *Integer.parseInt(playerMoveArray[1]));
+                minimalPot = coinsToAdd;
+                potOnTable += coinsToAdd;
+                players.get(playerNumber).addCoins(-1 *coinsToAdd);
+                playerWhichRaised = playerNumber;
                 return true;
             } else if (playerMoveArray[0].equalsIgnoreCase("check")) {
                 players.get(playerNumber).setHasChecked(true);
@@ -87,14 +88,23 @@ public class Table {
         }
         else{
             if (playerMoveArray[0].equalsIgnoreCase("Raise")) {
+                int coinsToAdd = Integer.parseInt(playerMoveArray[1]);
+                if (players.get(playerNumber).getCoins() < coinsToAdd) {
+                    coinsToAdd = players.get(playerNumber).getCoins();
+                }
                 setStatusAfterRaise();
-                minimalPot = Integer.parseInt(playerMoveArray[1]);
-                potOnTable += Integer.parseInt(playerMoveArray[1]);
-                players.get(playerNumber).addCoins(-1 *Integer.parseInt(playerMoveArray[1]));
+                minimalPot = coinsToAdd;
+                potOnTable += coinsToAdd;
+                players.get(playerNumber).addCoins(-1 *coinsToAdd);
+                playerWhichRaised = playerNumber;
                 return true;
             } else if (playerMoveArray[0].equalsIgnoreCase("call")) {
+                if (players.get(playerNumber).getCoins() < minimalPot) {
+                    players.get(playerNumber).setPlaying(false);
+                    players.get(playerNumber).addCoins(-1 * players.get(playerNumber).getCoins());
+                }
                 potOnTable += minimalPot;
-                players.get(playerNumber).addCoins(-1 *minimalPot);
+                players.get(playerNumber).addCoins(-1 * minimalPot);
                 return true;
             }
         }
@@ -120,20 +130,21 @@ public class Table {
         int winner = getRoundWinner();
         players.get(winner).addCoins(potOnTable);
         resetAllStatistics();
-        numOfRounds++;
         return winner;
     }
 
     public void resetAllStatistics() {
         potOnTable = 0;
         minimalPot = ante;
-        wasChanged = false;
         wasRaised = false;
+        playerWhichRaised = -1;
         deck.resetDeck();
         for (Player player : players) {
             player.setHasChecked(false);
             player.setPlaying(true);
             player.putAsideAllCards();
+            //player.addCoins(-1 * player.getCoins() + 400);
+            addPlayerToTable(player);
         }
     }
 

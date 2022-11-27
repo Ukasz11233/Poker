@@ -36,6 +36,7 @@ public class Deck {
     public void resetDeck() {
         cardDeck = new ArrayList<>(52);
         createDeck();
+        shuffleDeck();
     }
 
     private void createDeck() {

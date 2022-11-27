@@ -232,19 +232,19 @@ public class ServerNIO {
     private String fillMessageAfterGameStart(String messageToInsert, String msg, int clientId) {
         if (wasRoundFinished.get(clientId).equals(true)) {
             messageToInsert += "Round win player: " + winnerId + "\n";
-            messageToInsert += "We are beginning a new round!!!";
+            messageToInsert += "We are beginning a new round!!!\n";
             wasRoundFinished.put(clientId, false);
         }
         if (msg.equalsIgnoreCase("your move!")) {
 
             if (currPlayerMove == clientId) {
-                messageToInsert +="It is your move!\n" + table.tellWhatMoves(clientId);
+                messageToInsert +="---It is your move!---\n" + table.tellWhatMoves(clientId);
             } else {
-                messageToInsert += "It's not your move. It's player " + currPlayerMove + " move. You can check status of the game.";
+                messageToInsert += "---It's not your move. It's player " + currPlayerMove + " move. You can check status of the game.---";
             }
         }
         if (msg.equalsIgnoreCase("status")) {
-            messageToInsert += "Status: Ruch wykonuje gracz o id: " + currPlayerMove + " Twoje id: " + clientId + "\n" + table + "\n" +
+            messageToInsert += "Status: Ruch wykonuje gracz o id: " + currPlayerMove + " --- Twoje id: " + clientId + "\n" + table + "\n" +
                     table.playerInfo(clientId) + "\n" + table.tellWhatMoves(clientId);
         } else if (msg.contains("winner")) {
             messageToInsert += msg.getBytes();

@@ -58,6 +58,7 @@ public class TestTable {
 
     @Test
     public void TestReadPlayerMoveCallAnte20() {
+        table.setWasRaised(true);
         assertTrue(table.readPlayerMove("call", 0));
         assertEquals(360, player1.getCoins());
     }

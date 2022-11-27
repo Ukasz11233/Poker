@@ -56,7 +56,7 @@ public class ClientNIO {
         if (msgReceived.contains("starting game")) {
             hasGameStarted = true;
         }
-        logger.log(Level.INFO, "response = {0}", msgReceived);
+        logger.log(Level.INFO,  msgReceived);
         if (hasGameStarted) {
             key.interestOps(SelectionKey.OP_WRITE);
         }
