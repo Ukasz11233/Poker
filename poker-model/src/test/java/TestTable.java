@@ -106,6 +106,26 @@ public class TestTable {
     }
 
 
+    @Test
+    public void TestGetNextPlayerMove() {
+        Player player3 = new Player();
+        Player player4 = new Player();
+        table.addPlayer(player3);
+        table.addPlayer(player4);
+
+        player1.setPlaying(true);
+        player2.setPlaying(false);
+        player3.setPlaying(true);
+        player4.setPlaying(true);
+
+        player1.setHasChecked(true);
+        player2.setHasChecked(false);
+        player3.setHasChecked(false);
+        player4.setHasChecked(false);
+
+        assertEquals(2, table.getNextPlayerMove(1));
+    }
+
 
 
 

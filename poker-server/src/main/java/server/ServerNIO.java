@@ -27,9 +27,10 @@ public class ServerNIO {
     // statystyki rozgrywki
     private int conenctedUsers = 0;
     private int numberOfPlayers;
-    private int numberOfMesseges = 0;
-    private int currClient;
+    private int numberOfMoves = 0;
+    private int currPlayerMove;
     private int winnerId;
+    private int playerToStart = 0;
 
     private boolean killServer = false;
     private boolean gameStarted = false;
@@ -40,11 +41,13 @@ public class ServerNIO {
 
     private Map<Integer, Boolean> wasRoundFinished;
 
-    private final ByteBuffer readBuffer = ByteBuffer.allocate(BufferOperations.bufferSize);
-    private final ByteBuffer writeBuffer = ByteBuffer.allocate(BufferOperations.bufferSize);
-    Table table;
+    private final ByteBuffer readBuffer = ByteBuffer.allocate(BufferOperations.BUFFER_SIZE);
+    private final ByteBuffer writeBuffer = ByteBuffer.allocate(BufferOperations.BUFFER_SIZE);
+    private Table table;
 
-    public void runServer(int portNumber, int numberOfPlayersToSet) throws IOException {
+    private ArrayList<Integer> availableIds;
+
+    public void runServer(int portNumber, int numberOfPlayersToSet) {
         initalizeServer(portNumber, numberOfPlayersToSet);
 
         try {
@@ -52,11 +55,13 @@ public class ServerNIO {
                 selector.select();
                 Set<SelectionKey> keys = selector.selectedKeys();
                 Iterator<SelectionKey> it = keys.iterator();
+
                 // oczekwianie na graczy
                 waitForPlayer(it);
                 // sprawdz czy gra juz sie rozpoczynala
                 checkGameStarted();
                 // rozpoczecie rozgrywki
+
                 runGame(it);
             }
         } catch (IOException e) {
@@ -84,21 +89,29 @@ public class ServerNIO {
     }
 
     private void runGame(Iterator<SelectionKey> it) throws IOException{
-        while(it.hasNext() && conenctedUsers == numberOfPlayers) {
+        while(it.hasNext()) {
             SelectionKey sk = it.next();
-            currClient = numberOfMesseges % conenctedUsers;
-            if (table.isEndOFRound(currClient)) {
+            BufferOperations.clearBuffer(writeBuffer);
+            BufferOperations.clearBuffer(readBuffer);
+            if (table.isEndOFRound(currPlayerMove)) {
                 winnerId = table.endRound();
                 for(int i = 0; i < numberOfPlayers; ++i)
                     wasRoundFinished.put(i, true);
                 debug("Koniec rundy ");
+                // kolejna runde rozpoczyna kolejny gracz
+                playerToStart = (playerToStart+1)%numberOfPlayers;
+                numberOfMoves = playerToStart;
+                currPlayerMove = numberOfMoves;
             }
+            int k = playersId.get((SocketChannel) sk.channel());
+
             if (sk.isValid() && sk.isReadable()) {
                 handleRead(sk);
             } else if (sk.isValid() && sk.isWritable()) {
                 handleWrite(sk, "your move!");
             }
             it.remove();
+
         }
     }
     private void initalizeServer(int portNumber, int numberOfPlayersToSet) {
@@ -106,7 +119,10 @@ public class ServerNIO {
         playersId = new HashMap<>();
         hasGameStarted = new HashMap<>();
         wasRoundFinished = new HashMap<>();
-
+        availableIds = new ArrayList<>();
+        for (int i = 0; i < numberOfPlayers; ++i) {
+            availableIds.add(i);
+        }
         table = new Table(10);
         winnerId = -1;
         try {
@@ -124,10 +140,11 @@ public class ServerNIO {
     private void handleAccept() throws IOException{
         SocketChannel sc = ssc.accept();
 
+        int playerIdxToInsert = availableIds.remove(0);
         if (sc != null) {
-            playersId.put(sc, conenctedUsers);
-            hasGameStarted.put(conenctedUsers, false);
-            wasRoundFinished.put(conenctedUsers, false);
+            playersId.put(sc, playerIdxToInsert);
+            hasGameStarted.put(playerIdxToInsert, false);
+            wasRoundFinished.put(playerIdxToInsert, false);
             sc.configureBlocking(false);
             sc.register(selector, SelectionKey.OP_WRITE);
             debug("dodalem uzytkownika");
@@ -148,15 +165,16 @@ public class ServerNIO {
         }
     }
 
-    private void handleRead(SelectionKey sk) throws IOException {
+    private void handleRead(SelectionKey sk) {
         try {
             SocketChannel client = (SocketChannel) sk.channel();
             int clientId = playersId.get(client);
             BufferOperations.clearBuffer(readBuffer);
             int read = client.read(readBuffer);
             if (read == -1) {
-                Logs.debug("read==-1");
                 removeClient(client);
+                table.resetAllStatistics();
+                Logs.debug("read==-1");
             } else if (read > 0) {
                 sk.interestOps(SelectionKey.OP_WRITE);
                 readMessage(sk, clientId);
@@ -171,7 +189,7 @@ public class ServerNIO {
         debug(receivedMessage);
 
         if (table.readPlayerMove(receivedMessage, clientId)) {
-            numberOfMesseges++;
+            currPlayerMove = table.getNextPlayerMove(currPlayerMove);
             debug("Wiadomosc poprawna!");
         }
         if (receivedMessage.equalsIgnoreCase("status")) {
@@ -181,9 +199,11 @@ public class ServerNIO {
     private void handleWrite(SelectionKey sk, String msg) throws IOException {
         SocketChannel client = (SocketChannel) sk.channel();
         int clientId = playersId.get(client);
+        if (clientId >= conenctedUsers) {
+            return;
+        }
         BufferOperations.clearBuffer(writeBuffer);
         String messageToInsert = "";
-
         if (Boolean.FALSE.equals(hasGameStarted.get(clientId))) {
             messageToInsert += fillMessageBeforeGameStart(messageToInsert, clientId);
         }
@@ -203,10 +223,10 @@ public class ServerNIO {
 
     private String fillMessageBeforeGameStart(String messageToInsert, int clientId) {
         messageToInsert += "starting game\n" + table + "\n" + table.playerInfo(clientId);
-        if (currClient == clientId) {
+        if (currPlayerMove == clientId) {
             messageToInsert += "\n" + table.tellWhatMoves(clientId) + "\nIt is your move\n";
         } else {
-            messageToInsert += "\nIt is player " + currClient + " move\n";
+            messageToInsert += "\nIt is player " + currPlayerMove + " move\n";
         }
         hasGameStarted.put(clientId, true);
 
@@ -221,14 +241,14 @@ public class ServerNIO {
         }
         if (msg.equalsIgnoreCase("your move!")) {
 
-            if (currClient == clientId) {
+            if (currPlayerMove == clientId) {
                 messageToInsert +="It is your move!\n" + table.tellWhatMoves(clientId);
             } else {
-                messageToInsert += "It is not your move. You can check status of the game.";
+                messageToInsert += "It's not your move. It's player " + currPlayerMove + " move. You can check status of the game.";
             }
         }
         if (msg.equalsIgnoreCase("status")) {
-            messageToInsert += "Status: Ruch wykonuje gracz o id: " + currClient + " Twoje id: " + clientId + "\n" + table + "\n" +
+            messageToInsert += "Status: Ruch wykonuje gracz o id: " + currPlayerMove + " Twoje id: " + clientId + "\n" + table + "\n" +
                     table.playerInfo(clientId) + "\n" + table.tellWhatMoves(clientId);
         } else if (msg.contains("winner")) {
             messageToInsert += msg.getBytes();
@@ -239,12 +259,21 @@ public class ServerNIO {
     }
 
     private void removeClient(SocketChannel client) throws IOException{
+
+        debug("remove client: " + playersId.get(client));
         client.close();
         table.removePlayer(playersId.get(client));
-        table.resetAllStatistics();
+        availableIds.add(playersId.get(client));
         playersId.remove(client);
         conenctedUsers--;
-        hasGameStarted.put(playersId.get(client), false);
+        currPlayerMove = 0;
+        for (int i = 0; i < numberOfPlayers; i++) {
+            hasGameStarted.put(i, false);
+        }
         gameStarted = false;
+        debug("reset");
+
     }
+
+
 }

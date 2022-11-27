@@ -18,8 +18,8 @@ public class ClientNIO {
     private final Logger logger = Logger.getAnonymousLogger();
     private SocketChannel client;
     private Selector selector;
-    private final ByteBuffer readBuffer = ByteBuffer.allocate(BufferOperations.bufferSize);
-    private  ByteBuffer writeBuffer = ByteBuffer.allocate(BufferOperations.bufferSize);
+    private final ByteBuffer readBuffer = ByteBuffer.allocate(BufferOperations.BUFFER_SIZE);
+    private  ByteBuffer writeBuffer = ByteBuffer.allocate(BufferOperations.BUFFER_SIZE);
     private Scanner scanner;
     private boolean hasGameStarted = false;
 

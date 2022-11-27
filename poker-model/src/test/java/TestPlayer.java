@@ -1,4 +1,5 @@
 import gameplay.Card;
+import gameplay.Deck;
 import gameplay.Player;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,8 +22,27 @@ public class TestPlayer{
     }
 
     @Test
-    public void tesPlayerToString() {
+    public void tesPlayerToEmptyString() {
         assertEquals("", testedPlayer.toString());
+    }
+
+    @Test
+    public void testPlayerToString() {
+        ArrayList<Card> cards = new ArrayList<>();
+        cards.add(new Card(Card.suit.DIAMOND, Card.rank.TWO));
+        cards.add(new Card(Card.suit.SPADE, Card.rank.THREE));
+        cards.add(new Card(Card.suit.HEART, Card.rank.FOUR));
+        cards.add(new Card(Card.suit.CLUB, Card.rank.FIVE));
+        cards.add(new Card(Card.suit.SPADE, Card.rank.SEVEN));
+
+        StringBuilder expect = new StringBuilder();
+        int idx = 1;
+        for (Card card : cards) {
+            expect.append("\n").append(idx++).append(".").append(card);
+        }
+        testedPlayer.getFiveCards(cards);
+
+        assertEquals(expect.toString(), testedPlayer.toString());
     }
 
 
@@ -69,4 +89,14 @@ public class TestPlayer{
         expectedResult += (int) (2*Math.pow(2, 0)); //THREE
         assertEquals(expectedResult, testedPlayer.getResult());
     }
+
+
+    @Test
+    public void testPutAsideAllCards() {
+        Deck deck = new Deck();
+        testedPlayer.getFiveCards(deck);
+        testedPlayer.putAsideAllCards();
+        assertEquals("", testedPlayer.toString());
+    }
+
 }

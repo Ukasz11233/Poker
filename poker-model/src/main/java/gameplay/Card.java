@@ -52,17 +52,6 @@ public class Card {
         return "Suit: " + cardSuit + " Rank: " + cardRank;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Card card = (Card) o;
-        return cardSuit == card.cardSuit && cardRank == card.cardRank;
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(cardSuit, cardRank);
-    }
 }
 

@@ -1,5 +1,6 @@
 package gameplay;
-
+// TODO dodaj sprawdzanie czy gracz ma wystarczajaca ilosc monet
+// TODO dodaj sprawdzanie wyjatku w "raise" i "check"
 import java.util.ArrayList;
 
 public class Table {
@@ -21,7 +22,6 @@ public class Table {
     public Table(int anteToSet) {
         players = new ArrayList<>();
         deck = new Deck();
-        //deck.shuffleDeck(); //latwiej debugowac
         numOfPlayers = 0;
         potOnTable = 0;
         ante = anteToSet;
@@ -43,8 +43,16 @@ public class Table {
     }
 
     public String toString() {
-        return "Liczba graczy: " + numOfPlayers
+        return "Status graczy: " + playerAtTableInfo()
                 + "\nPot na stole: " + potOnTable;
+    }
+
+    private String playerAtTableInfo() {
+        StringBuilder info = new StringBuilder();
+        for (int i = 0; i < numOfPlayers; ++i) {
+            info.append("\nId: ").append(i).append(" status: ").append(players.get(i).status());
+        }
+        return info.toString();
     }
 
     public String playerInfo(int idx) {
@@ -59,6 +67,7 @@ public class Table {
         }
         if (!wasRaised) {
             if (playerMoveArray[0].equalsIgnoreCase("Raise")) {
+                setStatusAfterRaise();
                 wasRaised = true;
                 minimalPot = Integer.parseInt(playerMoveArray[1]);
                 potOnTable += Integer.parseInt(playerMoveArray[1]);
@@ -71,6 +80,7 @@ public class Table {
         }
         else{
             if (playerMoveArray[0].equalsIgnoreCase("Raise")) {
+                setStatusAfterRaise();
                 minimalPot = Integer.parseInt(playerMoveArray[1]);
                 potOnTable += Integer.parseInt(playerMoveArray[1]);
                 players.get(playerNumber).addCoins(-1 *Integer.parseInt(playerMoveArray[1]));
@@ -117,7 +127,6 @@ public class Table {
             player.setHasChecked(false);
             player.setPlaying(true);
             player.putAsideAllCards();
-            addPlayerToTable(player);
         }
     }
 
@@ -150,6 +159,8 @@ public class Table {
 
     private boolean hasEveryoneChecked() {
         for (Player player : players) {
+            if(!player.isPlaying())
+                continue;
             if(!player.isHasChecked())
                 return false;
         }
@@ -168,6 +179,13 @@ public class Table {
         }
         return true;
     }
+
+    private void setStatusAfterRaise() {
+        for (Player player : players) {
+            if(player.isPlaying())
+                player.setHasChecked(false);
+        }
+    }
     public void addPlayer(Player playerToAdd) {
         players.add(playerToAdd);
         numOfPlayers++;
@@ -183,5 +201,41 @@ public class Table {
         playerToStop = idx;
     }
 
+    public int getNextPlayerMove(int currId) {
+        int nextPlayerId;
+        for (int i = 0; i < 4; i++) {
+            nextPlayerId = (i + currId) % numOfPlayers;
+            if (nextPlayerId == currId) {
+                continue;
+            }
+            if (!players.get(nextPlayerId).isPlaying()) {
+                continue;
+            }
+            if (players.get(nextPlayerId).isHasChecked()) {
+                continue;
+            }
+            return nextPlayerId;
+        }
+        return currId;
+    }
 
+    public static void main(String[] args) {
+        Table table = new Table(20);
+        Player player1 = new Player();
+        Player player2 = new Player();
+        Player player3 = new Player();
+        Player player4 = new Player();
+
+        table.addPlayer(player1);
+        table.addPlayer(player2);
+        table.addPlayer(player3);
+        table.addPlayer(player4);
+
+        player2.setPlaying(false);
+        player3.setPlaying(false);
+        player4.setPlaying(true);
+
+        System.out.println(table.getNextPlayerMove(0));
+
+    }
 }

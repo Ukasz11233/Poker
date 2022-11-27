@@ -30,8 +30,8 @@ public class Player {
         int idx = 1;
         if(cards != null)
         {
-            for (Card cartToStr : cards) {
-                stringBuilder.append("\n").append(idx++).append(".").append(cartToStr);
+            for (Card cardToStr : cards) {
+                stringBuilder.append("\n").append(idx++).append(".").append(cardToStr);
             }
         }
         return stringBuilder.toString();
@@ -76,7 +76,11 @@ public class Player {
         return currentResult;
     }
 
-
+    public String status() {
+        if(!isPlaying) return "Folded";
+        else if(hasChecked) return "Checked";
+        else return "plays";
+    }
 
 
 

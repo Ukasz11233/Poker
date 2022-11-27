@@ -36,6 +36,7 @@ public class Deck {
     public void resetDeck() {
         cardDeck = new ArrayList<>(52);
         createDeck();
+        shuffleDeck();
     }
 
     private void createDeck() {
@@ -50,9 +51,3 @@ public class Deck {
 
 }
 
-
-class CardRankComparator implements Comparator<Card> {
-    public int compare(Card cardA, Card cardB) {
-        return Card.compare(cardA, cardB);
-    }
-}
